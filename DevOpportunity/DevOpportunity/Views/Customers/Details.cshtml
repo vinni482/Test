@@ -1,4 +1,6 @@
-﻿@model IEnumerable<DevOpportunity.Orders>
+﻿@using PagedList.Mvc;
+@model PagedList.IPagedList<DevOpportunity.Orders>
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{
     ViewBag.Title = "Orders";
@@ -10,43 +12,43 @@
 <table class="table table-striped table-hover table-responsive">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.OrderDate)
+            @Html.DisplayNameFor(model => model.FirstOrDefault().OrderDate)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.RequiredDate)
+            @Html.DisplayNameFor(model => model.FirstOrDefault().RequiredDate)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.ShippedDate)
+            @Html.DisplayNameFor(model => model.FirstOrDefault().ShippedDate)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Freight)
+            @Html.DisplayNameFor(model => model.FirstOrDefault().Freight)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.ShipName)
+            @Html.DisplayNameFor(model => model.FirstOrDefault().ShipName)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.ShipAddress)
+            @Html.DisplayNameFor(model => model.FirstOrDefault().ShipAddress)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.ShipCity)
+            @Html.DisplayNameFor(model => model.FirstOrDefault().ShipCity)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.ShipRegion)
+            @Html.DisplayNameFor(model => model.FirstOrDefault().ShipRegion)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.ShipPostalCode)
+            @Html.DisplayNameFor(model => model.FirstOrDefault().ShipPostalCode)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.ShipCountry)
+            @Html.DisplayNameFor(model => model.FirstOrDefault().ShipCountry)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Customers.CompanyName)
+            @Html.DisplayNameFor(model => model.FirstOrDefault().Customers.CompanyName)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Employees.LastName)
+            @Html.DisplayNameFor(model => model.FirstOrDefault().Employees.LastName)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Shippers.CompanyName)
+            @Html.DisplayNameFor(model => model.FirstOrDefault().ShipVia)
         </th>
     </tr>
 
@@ -95,3 +97,7 @@
 }
 
 </table>
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Details", new { page, id = ViewBag.CustomerID }))
