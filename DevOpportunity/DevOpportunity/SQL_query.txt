@@ -1,0 +1,4 @@
+SELECT ProductName, COUNT(ProductName) AS [Orders Count], SUM(Quantity) AS [Total Qty Ordered], RANK() OVER (ORDER BY SUM(Quantity) DESC) AS xRank
+FROM [Order Details], Products 
+WHERE [Order Details].ProductID = Products.ProductID
+GROUP BY ProductName
