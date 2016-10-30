@@ -4,7 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
-using PagedList;
+using DevOpportunity.Models;
 
 namespace DevOpportunity.Controllers
 {
@@ -15,8 +15,29 @@ namespace DevOpportunity.Controllers
         // GET: Customers
         public ActionResult Index(string searchString, int page = 1)
         {
+            int customersCount = 0;
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                customersCount = db.Customers.Where(a => a.CompanyName.Contains(searchString)
+                                                  || a.ContactName.Contains(searchString)
+                                                  || a.ContactTitle.Contains(searchString)
+                                                  || a.Address.Contains(searchString)
+                                                  || a.City.Contains(searchString)
+                                                  || a.Region.Contains(searchString)
+                                                  || a.PostalCode.Contains(searchString)
+                                                  || a.Country.Contains(searchString)
+                                                  || a.Phone.Contains(searchString)
+                                                  || a.Fax.Contains(searchString)).Count();
+            }
+            else
+            {
+                customersCount = db.Customers.Count();
+            }
+            Pager pager = new Pager(customersCount, page);
+
             ViewBag.SearchString = searchString;
             IEnumerable<Customers> customers;
+            
             if (!String.IsNullOrEmpty(searchString))
             {
                 customers = db.Customers.Where(a => a.CompanyName.Contains(searchString)
@@ -28,30 +49,46 @@ namespace DevOpportunity.Controllers
                                                   || a.PostalCode.Contains(searchString)
                                                   || a.Country.Contains(searchString)
                                                   || a.Phone.Contains(searchString)
-                                                  || a.Fax.Contains(searchString));
+                                                  || a.Fax.Contains(searchString)).OrderBy(a => a.CustomerID).Skip((pager.CurrentPage - 1)*pager.PageSize).Take(pager.PageSize);
             }
             else
             {
-                customers = db.Customers;
-            }
+                customers = db.Customers.OrderBy(a => a.CustomerID).Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize);
+            }            
 
-            return View(customers.OrderBy(a => a.CustomerID).ToPagedList(page, 10));
+            Pagination<Customers> pagination = new Pagination<Customers>()
+            {
+                Items = customers,
+                Pager = pager
+            };
+
+            return View(pagination);
         }
 
         // GET: Customers/Details/5
         public ActionResult Details(string id, int page = 1)
         {
+            Pager pager = new Pager(db.Orders.Where(a => a.CustomerID == id).Count(), page);
+
             ViewBag.CustomerID = id;
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            IEnumerable<Orders> orders = db.Orders.Where(a => a.CustomerID == id);
+
+            IEnumerable<Orders> orders = db.Orders.Where(a => a.CustomerID == id).OrderBy(a => a.CustomerID).Skip((pager.CurrentPage - 1) * pager.PageSize).Take(pager.PageSize);
             if (orders == null)
             {
                 return HttpNotFound();
             }
-            return View(orders.OrderBy(a => a.CustomerID).ToPagedList(page, 10));
+
+            Pagination<Orders> pagination = new Pagination<Orders>()
+            {
+                Items = orders,
+                Pager = pager
+            };
+
+            return View(pagination);
         }
 
         protected override void Dispose(bool disposing)
